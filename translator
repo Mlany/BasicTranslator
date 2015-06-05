@@ -1,0 +1,32 @@
+#!/bin/sh
+
+FILE1=/tmp/english-$$
+FILE2=/tmp/mrukreol-$$
+
+curl -s http://semes-olla.rhcloud.com/words?Swadesh/English.py > $FILE1 
+#curl -s http://semes-olla.rhcloud.com/words?Swadesh/Romance/French.py > $FILE2
+curl -s http://semes-olla.rhcloud.com/words?Swadesh/Creole/Mauritian.py > $FILE2
+
+echo "Welcome to Basic English-Creole translator!"
+echo "Do you want to view the list of core vocabulary words?[y/any other keys]"
+read INPUT1 
+
+if [ $INPUT1 = "y" ]; then
+   cat $FILE1
+fi
+
+echo "Enter the number of the word you want to translate" 
+read NUMBER
+
+MYSTRING="Creole translation of $NUMBER word is: "
+echo $MYSTRING
+
+#echo "French translation of word " 
+curl -s "http://semes-olla.rhcloud.com/word?$NUMBER&/Swadesh/Creole/Mauritian.py"
+
+echo
+
+rm -f $FILE1
+rm -f $FILE2
+
+

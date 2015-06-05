@@ -1,0 +1,82 @@
+#!/bin/sh
+
+export TEXTDOMAINDIR=/usr/share/locale
+export TEXTDOMAIN=translator_ui
+GETTEXT="gettext -d translator_ui"
+
+FILE1=/tmp/english-$$
+#FILE2=/tmp/mrukreol-$$
+FILE3=/tmp/input.txt
+FILE4=/tmp/output.txt
+
+HOST=localhost
+PORT=1234
+PROG=translator.basic
+NUMBER=0
+EXITSTATUS=0
+
+
+
+curl -s http://semes-olla.rhcloud.com/words?Swadesh/English.py > $FILE1
+#curl -s http://semes-olla.rhcloud.com/words?Swadesh/Creole/Mauritian.py > $FILE2
+
+if [ -r ~/.translator.conf ]
+then
+	. ~/.translator.conf
+elif [ -r /etc/translator.conf ]
+then
+	. /etc/translator.conf
+fi
+
+which gdialog 2> /dev/null && DIALOG=gdialog || DIALOG=dialog
+
+end () {
+	rm -f $FILE1 $FILE3 $FILE4
+        exit
+}
+
+if [ $# -eq 1 ]
+then
+        if [ $1 -eq '--help' ]
+        then
+                help
+                exit -1
+        else
+                HOST=$1
+        fi
+elif [ $# -eq 2 ]
+then
+        PORT=$2
+fi
+
+if [ $# -ge 1 -o `basename $0` = 'ntranslator_ui' ]
+then
+	if [ $HOST -a $PORT ]
+	then
+	        PROG="nc $HOST $PORT"
+	else
+		echo "You must set HOST and PORT"
+		exit -2
+	fi
+fi
+
+
+while [ $EXITSTATUS -eq 0 ]; do
+	
+	$DIALOG --title "`$GETTEXT \"Welcome to Basic English-Creole translator!\"`" --yesno "`$GETTEXT \"Do you want to view the list of core vocabulary words?\"`" 8 50 5 
+	response=$? 
+	case $response in
+   		0) $DIALOG --title "`$GETTEXT \"Basic English-Creole translator\"`" --textbox $FILE1 50 50;; 
+	esac
+	$DIALOG --title "`$GETTEXT \"Basic English-Creole translator\"`" --inputbox "`$GETTEXT \"Enter the number of the word you want to translate\"`" 8 50 2> $FILE3 || end
+	NUMBER=`cat < $FILE3` 
+	echo $NUMBER | sh $PROG > $FILE4
+	cat $FILE4
+	echo
+	$DIALOG --title "`$GETTEXT \"Basic English-Creole translator\"`" --msgbox "`$GETTEXT \"The Creole translation of word is\"` \n `cat $FILE4`" 8 50 || end
+	$DIALOG --title "`$GETTEXT \"Basic English-Creole translator\"`" --yesno "`$GETTEXT \"Do you want to continue?\"`" 8 50 5 EXITSTATUS=$?	|| end
+	
+done
+
+end
+

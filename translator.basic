@@ -1,0 +1,25 @@
+#!/bin/sh
+
+#FILE5=/tmp/english.txt
+FILE=/tmp/mrukreol.txt
+
+NUMBER=0
+
+#curl -s http://semes-olla.rhcloud.com/words?Swadesh/English.py > $FILE5 
+curl -s http://semes-olla.rhcloud.com/words?Swadesh/Creole/Mauritian.py > $FILE
+
+end () {
+	rm -f $FILE
+        exit
+}
+
+#echo "Enter the number of the word you want to translate:"
+read NUMBER
+
+#echo "Creole translation of word:"
+curl -s "http://semes-olla.rhcloud.com/word?$NUMBER&/Swadesh/Creole/Mauritian.py" 
+
+end
+
+
+
