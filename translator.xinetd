@@ -1,0 +1,11 @@
+# default: on
+# description: The translator server
+service translator 
+{
+	flags		= REUSE
+	socket_type	= stream        
+	wait		= no
+	user		= nobody
+	server		= /usr/local/bin/translator
+	disable		= no
+}
